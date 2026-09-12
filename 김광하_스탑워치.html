@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>비숑 스탑워치</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
+  }
+
+  /* ---------- 배경 무대 ---------- */
+  body {
+    position: relative;
+    background: linear-gradient(180deg, #bfe6fb 0%, #e8f7ff 55%, #eafce3 100%);
+  }
+
+  .cloud {
+    position: absolute;
+    background: #fff;
+    border-radius: 50px;
+    opacity: 0.9;
+    animation: drift linear infinite;
+  }
+  .cloud::before, .cloud::after {
+    content: '';
+    position: absolute;
+    background: #fff;
+    border-radius: 50%;
+  }
+  .cloud1 { width: 90px; height: 30px; top: 8%; left: -120px; animation-duration: 38s; }
+  .cloud1::before { width: 46px; height: 46px; top: -22px; left: 10px; }
+  .cloud1::after { width: 34px; height: 34px; top: -14px; left: 46px; }
+  .cloud2 { width: 60px; height: 22px; top: 18%; left: -100px; animation-duration: 26s; animation-delay: -10s; }
+  .cloud2::before { width: 32px; height: 32px; top: -14px; left: 8px; }
+  .cloud2::after { width: 24px; height: 24px; top: -10px; left: 32px; }
+  @keyframes drift {
+    from { transform: translateX(-10vw); }
+    to   { transform: translateX(110vw); }
+  }
+
+  .sun {
+    position: absolute;
+    top: 6%; right: 8%;
+    width: 64px; height: 64px;
+    background: #ffe27a;
+    border-radius: 50%;
+    box-shadow: 0 0 30px 10px rgba(255, 226, 122, 0.6);
+  }
+
+  .grass {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    width: 100%; height: 16vh;
+    display: block;
+  }
+
+  /* ---------- 비숑 ---------- */
+  .dog-stage {
+    position: absolute;
+    left: 50%;
+    bottom: 8vh;
+    width: 170px;
+    height: 170px;
+    transform: translateX(-50%);
+    z-index: 1;
+  }
+  .dog-shadow {
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    width: 90px;
+    height: 18px;
+    background: rgba(0, 0, 0, 0.18);
+    border-radius: 50%;
+    transform: translateX(-50%);
+    filter: blur(1px);
+  }
+  #dog {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    transform-box: fill-box;
+    transform-origin: 50% 100%;
+    animation: tailIdle 2.6s ease-in-out infinite;
+  }
+  #dog.jumping { animation: bichonJump 0.6s ease-in-out; }
+  #dog.spinning { animation: bichonSpin 1s ease-in-out; }
+  #dog.barking .mouthClosed { opacity: 0; }
+  #dog.barking .mouthOpen { animation: barkMouth 0.8s steps(1); }
+  #dog.barking .speechBubble { animation: bubblePop 0.9s ease; }
+
+  @keyframes tailIdle {
+    0%, 100% { transform: rotate(0deg); }
+    50% { transform: rotate(1.2deg); }
+  }
+  .tail {
+    transform-box: fill-box;
+    transform-origin: 100% 60%;
+    animation: wag 0.5s ease-in-out infinite alternate;
+  }
+  @keyframes wag {
+    from { transform: rotate(-14deg); }
+    to   { transform: rotate(14deg); }
+  }
+
+  @keyframes bichonJump {
+    0%, 100% { transform: translateY(0) scaleY(1); }
+    20%  { transform: translateY(6px) scaleY(0.9); }
+    55%  { transform: translateY(-42px) scaleY(1.06); }
+    80%  { transform: translateY(4px) scaleY(0.94); }
+  }
+  @keyframes bichonSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  @keyframes barkMouth {
+    0%, 100% { opacity: 0; }
+    15%, 45% { opacity: 1; }
+    30%, 60% { opacity: 0; }
+  }
+  .mouthOpen { opacity: 0; }
+  .speechBubble { opacity: 0; transform-box: fill-box; transform-origin: 50% 100%; }
+  @keyframes bubblePop {
+    0%   { opacity: 0; transform: scale(0.4) translateY(8px); }
+    20%  { opacity: 1; transform: scale(1.1) translateY(-2px); }
+    35%  { transform: scale(1) translateY(0); }
+    80%  { opacity: 1; }
+    100% { opacity: 0; transform: scale(0.9) translateY(-10px); }
+  }
+
+  /* ---------- 카드 ---------- */
+  .card-wrap {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+  .card {
+    position: relative;
+    background: rgba(255, 251, 245, 0.93);
+    backdrop-filter: blur(6px);
+    border: 2px solid rgba(255, 255, 255, 0.7);
+    border-radius: 28px;
+    padding: 36px 30px 26px;
+    width: 340px;
+    max-width: 88vw;
+    box-shadow: 0 14px 34px rgba(120, 90, 60, 0.22);
+    text-align: center;
+    overflow: visible;
+  }
+  h1 {
+    color: #7a5230;
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    margin: 0 0 22px;
+  }
+  h1 span { opacity: 0.55; font-weight: 500; }
+  .display {
+    font-variant-numeric: tabular-nums;
+    font-size: 50px;
+    font-weight: 800;
+    color: #6b4a30;
+    margin-bottom: 26px;
+    letter-spacing: 1px;
+  }
+  .display .ms {
+    font-size: 26px;
+    color: #c99a6b;
+  }
+
+  /* 개껌 & 사료 애니메이션 */
+  .floaty {
+    position: absolute;
+    pointer-events: none;
+    user-select: none;
+  }
+  .bone-icon {
+    top: -16px;
+    left: -14px;
+    font-size: 30px;
+    transform: rotate(-25deg);
+    animation: boneFloat 3.2s ease-in-out infinite;
+    filter: drop-shadow(0 4px 3px rgba(0,0,0,0.15));
+  }
+  @keyframes boneFloat {
+    0%, 100% { transform: rotate(-25deg) translateY(0); }
+    50%      { transform: rotate(-10deg) translateY(-10px); }
+  }
+  .kibble-pile {
+    top: -10px;
+    right: -8px;
+    width: 46px;
+    height: 30px;
+  }
+  .kibble-dot {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 40% 60% 55% 45%;
+    background: radial-gradient(circle at 30% 30%, #e3a25c, #a86a34);
+    animation: kibbleBounce 1.6s ease-in-out infinite;
+  }
+  .kibble-dot:nth-child(1) { left: 0;  top: 10px; animation-delay: 0s; }
+  .kibble-dot:nth-child(2) { left: 14px; top: 0;  animation-delay: 0.2s; }
+  .kibble-dot:nth-child(3) { left: 28px; top: 12px; animation-delay: 0.4s; }
+  .kibble-dot:nth-child(4) { left: 8px;  top: 18px; animation-delay: 0.6s; }
+  @keyframes kibbleBounce {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50%      { transform: translateY(-7px) rotate(20deg); }
+  }
+  .bowl-icon {
+    bottom: -18px;
+    left: -12px;
+    font-size: 28px;
+    animation: bowlWiggle 2.4s ease-in-out infinite;
+    filter: drop-shadow(0 4px 3px rgba(0,0,0,0.15));
+  }
+  @keyframes bowlWiggle {
+    0%, 100% { transform: rotate(-4deg); }
+    50%      { transform: rotate(4deg); }
+  }
+
+  /* ---------- 버튼: 국룰 원형 2버튼 레이아웃 ---------- */
+  .controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 6px;
+    margin-bottom: 18px;
+  }
+  .circle-btn {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    border: none;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.1s ease, box-shadow 0.15s ease, opacity 0.2s ease;
+  }
+  .circle-btn:active { transform: scale(0.94); }
+  .circle-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  #sideBtn {
+    background: #f1e6d8;
+    color: #8a6a45;
+    box-shadow: 0 0 0 5px rgba(241, 230, 216, 0.5);
+  }
+  #startBtn {
+    background: #7ed957;
+    color: #fff;
+    box-shadow: 0 0 0 5px rgba(126, 217, 87, 0.25);
+  }
+  #startBtn.running {
+    background: #ff6b6b;
+    box-shadow: 0 0 0 5px rgba(255, 107, 107, 0.25);
+  }
+
+  .laps {
+    max-height: 160px;
+    overflow-y: auto;
+    text-align: left;
+  }
+  .laps::-webkit-scrollbar { width: 6px; }
+  .laps::-webkit-scrollbar-thumb { background: rgba(140, 106, 69, 0.3); border-radius: 3px; }
+  .lap-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 10px;
+    color: #6b4a30;
+    font-size: 13.5px;
+    border-bottom: 1px dashed rgba(140, 106, 69, 0.2);
+  }
+  .lap-item span:first-child { opacity: 0.7; }
+  .lap-item.fastest { color: #3fa34d; font-weight: 700; }
+  .lap-item.slowest { color: #e0574d; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="sun"></div>
+<div class="cloud cloud1"></div>
+<div class="cloud cloud2"></div>
+
+<svg class="grass" viewBox="0 0 1440 200" preserveAspectRatio="none">
+  <path d="M0,60 Q60,20 120,60 T240,60 T360,60 T480,60 T600,60 T720,60 T840,60 T960,60 T1080,60 T1200,60 T1320,60 T1440,60 V200 H0 Z" fill="#8fcf5f"/>
+  <path d="M0,90 Q60,60 120,90 T240,90 T360,90 T480,90 T600,90 T720,90 T840,90 T960,90 T1080,90 T1200,90 T1320,90 T1440,90 V200 H0 Z" fill="#7cbf4d" opacity="0.8"/>
+</svg>
+
+<div class="dog-stage">
+  <div class="dog-shadow"></div>
+  <svg id="dog" viewBox="0 0 200 200">
+    <ellipse class="tail" cx="164" cy="120" rx="14" ry="8" fill="#fdfdfb" stroke="#e4e0d8" stroke-width="2"/>
+
+    <rect x="60" y="150" width="14" height="26" rx="7" fill="#fdfdfb" stroke="#e4e0d8" stroke-width="2"/>
+    <rect x="120" y="150" width="14" height="26" rx="7" fill="#fdfdfb" stroke="#e4e0d8" stroke-width="2"/>
+    <rect x="76" y="154" width="14" height="24" rx="7" fill="#f3f1ea" stroke="#e4e0d8" stroke-width="2"/>
+    <rect x="104" y="154" width="14" height="24" rx="7" fill="#f3f1ea" stroke="#e4e0d8" stroke-width="2"/>
+
+    <ellipse cx="80" cy="118" rx="34" ry="26" fill="#fdfdfb" stroke="#e4e0d8" stroke-width="2"/>
+    <ellipse cx="115" cy="112" rx="42" ry="34" fill="#fdfdfb" stroke="#e4e0d8" stroke-width="2"/>
+    <ellipse cx="150" cy="122" rx="26" ry="20" fill="#fdfdfb" stroke="#e4e0d8" stroke-width="2"/>
+
+    <g>
+      <ellipse cx="90" cy="70" rx="20" ry="14" fill="#e9e2d3" transform="rotate(-25 90 70)"/>
+      <ellipse cx="150" cy="70" rx="20" ry="14" fill="#e9e2d3" transform="rotate(25 150 70)"/>
+      <circle cx="120" cy="72" r="40" fill="#fdfdfb" stroke="#e4e0d8" stroke-width="2"/>
+
+      <circle cx="106" cy="70" r="5" fill="#3a2c22"/>
+      <circle cx="134" cy="70" r="5" fill="#3a2c22"/>
+      <ellipse cx="120" cy="84" rx="6" ry="4.5" fill="#3a2c22"/>
+
+      <path class="mouthClosed" d="M113,90 Q120,96 127,90" stroke="#8a6a45" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <g class="mouthOpen">
+        <ellipse cx="120" cy="92" rx="8" ry="7" fill="#c9564b"/>
+        <ellipse cx="120" cy="96" rx="4" ry="3" fill="#ff8f84"/>
+      </g>
+    </g>
+
+    <g class="speechBubble" transform="translate(150,30)">
+      <rect x="0" y="0" width="60" height="30" rx="14" fill="#fff" stroke="#e4e0d8" stroke-width="2"/>
+      <polygon points="10,28 4,40 20,28" fill="#fff" stroke="#e4e0d8" stroke-width="2"/>
+      <text x="30" y="20" text-anchor="middle" font-size="15" font-weight="700" fill="#e0574d">왈왈!</text>
+    </g>
+  </svg>
+</div>
+
+<div class="card-wrap">
+  <div class="card">
+    <div class="floaty bone-icon">🦴</div>
+    <div class="floaty kibble-pile">
+      <span class="kibble-dot"></span>
+      <span class="kibble-dot"></span>
+      <span class="kibble-dot"></span>
+      <span class="kibble-dot"></span>
+    </div>
+    <div class="floaty bowl-icon">🐾</div>
+
+    <h1>비숑 <span>STOPWATCH</span></h1>
+    <div class="display" id="display">00:00:00<span class="ms">.00</span></div>
+    <div class="controls">
+      <button id="sideBtn" class="circle-btn" disabled>리셋</button>
+      <button id="startBtn" class="circle-btn">시작</button>
+    </div>
+    <div class="laps" id="laps"></div>
+  </div>
+</div>
+
+<script>
+  const displayEl = document.getElementById('display');
+  const startBtn = document.getElementById('startBtn');
+  const sideBtn = document.getElementById('sideBtn');
+  const lapsEl = document.getElementById('laps');
+  const dogEl = document.getElementById('dog');
+
+  let running = false;
+  let startTime = 0;
+  let elapsed = 0;
+  let rafId = null;
+  let laps = [];
+  let lastTriggerSec = -1;
+
+  function formatTime(ms) {
+    const totalMs = Math.floor(ms);
+    const hours = Math.floor(totalMs / 3600000);
+    const minutes = Math.floor((totalMs % 3600000) / 60000);
+    const seconds = Math.floor((totalMs % 60000) / 1000);
+    const centis = Math.floor((totalMs % 1000) / 10);
+    const pad = (n, len = 2) => String(n).padStart(len, '0');
+    return {
+      main: `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`,
+      ms: pad(centis)
+    };
+  }
+
+  function render() {
+    const t = formatTime(elapsed);
+    displayEl.innerHTML = `${t.main}<span class="ms">.${t.ms}</span>`;
+  }
+
+  function playDogAnimation(className, duration) {
+    dogEl.classList.remove('jumping', 'spinning', 'barking');
+    void dogEl.offsetWidth;
+    dogEl.classList.add(className);
+    setTimeout(() => dogEl.classList.remove(className), duration);
+  }
+
+  function checkDogTriggers(sec) {
+    if (sec <= 0 || sec === lastTriggerSec) return;
+    lastTriggerSec = sec;
+    if (sec % 30 === 0) playDogAnimation('spinning', 1000);
+    else if (sec % 10 === 0) playDogAnimation('barking', 900);
+    else if (sec % 5 === 0) playDogAnimation('jumping', 600);
+  }
+
+  function tick() {
+    elapsed = performance.now() - startTime;
+    render();
+    checkDogTriggers(Math.floor(elapsed / 1000));
+    rafId = requestAnimationFrame(tick);
+  }
+
+  function updateSideButton() {
+    if (running) {
+      sideBtn.textContent = '랩';
+      sideBtn.disabled = false;
+    } else {
+      sideBtn.textContent = '리셋';
+      sideBtn.disabled = elapsed === 0;
+    }
+  }
+
+  function start() {
+    running = true;
+    startTime = performance.now() - elapsed;
+    rafId = requestAnimationFrame(tick);
+    startBtn.textContent = '정지';
+    startBtn.classList.add('running');
+    updateSideButton();
+  }
+
+  function stop() {
+    running = false;
+    cancelAnimationFrame(rafId);
+    startBtn.textContent = '시작';
+    startBtn.classList.remove('running');
+    dogEl.classList.remove('jumping', 'spinning', 'barking');
+    updateSideButton();
+  }
+
+  function reset() {
+    stop();
+    elapsed = 0;
+    laps = [];
+    lastTriggerSec = -1;
+    render();
+    renderLaps();
+    updateSideButton();
+  }
+
+  function addLap() {
+    laps.push(elapsed);
+    renderLaps();
+  }
+
+  function renderLaps() {
+    lapsEl.innerHTML = '';
+    if (laps.length === 0) return;
+
+    const durations = laps.map((t, i) => (i === 0 ? t : t - laps[i - 1]));
+    const fastest = Math.min(...durations);
+    const slowest = Math.max(...durations);
+
+    laps.forEach((t, i) => {
+      const duration = durations[i];
+      const item = document.createElement('div');
+      item.className = 'lap-item';
+      if (laps.length > 1) {
+        if (duration === fastest) item.classList.add('fastest');
+        else if (duration === slowest) item.classList.add('slowest');
+      }
+      const durFmt = formatTime(duration);
+      const totalFmt = formatTime(t);
+      item.innerHTML = `<span>🐾 랩 ${i + 1} (${durFmt.main}.${durFmt.ms})</span><span>${totalFmt.main}.${totalFmt.ms}</span>`;
+      lapsEl.prepend(item);
+    });
+  }
+
+  startBtn.addEventListener('click', () => {
+    running ? stop() : start();
+  });
+  sideBtn.addEventListener('click', () => {
+    if (running) addLap();
+    else reset();
+  });
+
+  render();
+  updateSideButton();
+</script>
+
+</body>
+</html>
